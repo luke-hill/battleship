@@ -9,11 +9,11 @@ class LessNaivePlayer
 
   def new_game
     [
-        [5, 0, 5, :across],
-        [9, 3, 4, :down],
-        [5, 2, 3, :across],
-        [1, 1, 3, :down],
-        [5, 4, 2, :across]
+      [5, 0, 5, :across],
+      [5, 1, 4, :across],
+      [5, 2, 3, :across],
+      [5, 3, 3, :across],
+      [5, 4, 2, :across]
     ]
   end
 
