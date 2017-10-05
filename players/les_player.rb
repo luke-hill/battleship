@@ -1,7 +1,7 @@
 require_relative '../players/logic'
 require_relative '../players/helper'
 
-class LukePlayer
+class LESPlayer
   attr_accessor :turn, :last_turn, :pre_determined_moves, :move_history, :status_history, :ship_counter
 
   include Helper
@@ -16,7 +16,7 @@ class LukePlayer
   end
 
   def name
-    'Luke Player'
+    'Luke, Elizabeth and Stephen'
   end
 
   def new_game
@@ -48,7 +48,7 @@ class LukePlayer
     # end
     
     self.turn += 1
-    move = Logic.new(state, last_turn, fallback_move, removed).make_a_move
+    move = Logic.new(state, last_turn, fallback_move, removed, status_history, move_history).make_a_move
     move_history << move
 
     self.ship_counter = ships_remaining

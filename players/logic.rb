@@ -1,28 +1,54 @@
 class Logic
   attr_accessor :state, :last_turn
-  attr_reader :fallback_move, :removed
+  attr_reader :fallback_move, :removed, :status_history, :move_history
 
-  def initialize(state, last_turn, fallback_move, removed)
+  def initialize(state, last_turn, fallback_move, removed, status_history, move_history)
     @state = state
     @last_turn = last_turn
     @fallback_move = fallback_move
     @removed = removed
+    @status_history = status_history
+    @move_history = move_history
   end
 
   def make_a_move
     if turn_one?
-      [0, 0]
+      [5, 5]
     elsif !removed.empty? && fallback_move_unused?
       fallback_move
     elsif !removed.empty?
       [column_to_attack, least_used_row]
     elsif last_turn_hit? && valid_borders?
-      hit_continue_value
+      attack_bordering_cell
+    elsif first_rehunt?
+      self.last_turn = move_history[-2]
+      
+      status_history.delete_at(-1)
+      move_history.delete_at(-1)
+      
+      make_a_move
+    elsif second_rehunt?
+      self.last_turn = move_history[-3]
+      
+      2.times do
+        status_history.delete_at(-1)
+        move_history.delete_at(-1)
+      end
+      
+      make_a_move
     elsif fallback_move_unused?
       fallback_move
     else
       [column_to_attack, least_used_row]
     end
+  end
+  
+  def first_rehunt?
+    status_history[-1] == :miss && status_history[-2] == :hit
+  end
+  
+  def second_rehunt?
+    status_history[-1] == :miss && status_history[-2] == :miss && status_history[-3] == :hit
   end
 
   def fallback_move_unused?
@@ -40,18 +66,34 @@ class Logic
   def last_turn_column
     last_turn.first
   end
+  
+  def horizontal_statuses
+    [west_of_hit_value, east_of_hit_value]
+  end
+  
+  def horizontal_coords
+    [west_of_hit, east_of_hit]
+  end
+
+  def vertical_statuses
+    [north_of_hit_value, south_of_hit_value]
+  end
+
+  def vertical_coords
+    [north_of_hit, south_of_hit]
+  end
 
   def direction_statuses
-    [north_of_hit_value, west_of_hit_value, south_of_hit_value, east_of_hit_value]
+    horizontal_statuses + vertical_statuses
   end
 
-  def hit_continue_value
+  def direction_coords
+    horizontal_coords + vertical_coords
+  end
+
+  def attack_bordering_cell
     i = direction_statuses.index(:unknown)
-    direction_values[i]
-  end
-
-  def direction_values
-    [north_of_hit, west_of_hit, south_of_hit, east_of_hit]
+    direction_coords[i]
   end
 
   def north_of_hit
