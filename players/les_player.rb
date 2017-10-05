@@ -31,15 +31,19 @@ class LESPlayer
 
   def take_turn(state, ships_remaining)
     unless turn.zero?
-      status_history << last_move_status(state, @last_turn)
+      status_history << last_move_status(state, last_turn)
     end
     
     removed = ship_counter - ships_remaining
     
-    fallback_move = pre_determined_moves.sample
-    index = pre_determined_moves.index(fallback_move)
-    pre_determined_moves.delete_at(index) if index
-
+    # if carrier_alive?(ships_remaining)
+    #   fallback_move = pre_determined_moves.sample
+    #   index = pre_determined_moves.index(fallback_move)
+    #   pre_determined_moves.delete_at(index) if index
+    # else
+    #   fallback_move = nil
+    # end
+    
     # if turn == 20
     #   p move_history
     #   p status_history
@@ -48,12 +52,30 @@ class LESPlayer
     # end
     
     self.turn += 1
-    move = Logic.new(state, last_turn, fallback_move, removed, status_history, move_history).make_a_move
+    move = Logic.new(state, last_turn.clone, nil, removed, status_history.clone, move_history.clone).make_a_move
     move_history << move
-
     self.ship_counter = ships_remaining
     
-    @last_turn = move
+    self.last_turn = move
+  end
+  
+  def carrier_alive?(ships_array)
+    ships_array.include?(5)
+  end
+  
+  def carrier_moves
+    # [
+    #   [0, 1], [0, 6],
+    #   [1, 2], [1, 7],
+    #   [2, 3], [2, 8],
+    #   [3, 4], [3, 9],
+    #   [4, 5], [4, 0],
+    #   [5, 6], [5, 1],
+    #   [6, 7], [6, 2],
+    #   [7, 8], [7, 3],
+    #   [8, 9], [8, 4],
+    #   [9, 0], [9, 5],
+    # ]
   end
 
   def default_moves
@@ -63,7 +85,7 @@ class LESPlayer
       [2, 1], [2, 3], [2, 5], [2, 7], [2, 9],
       [3, 0], [3, 2], [3, 4], [3, 6], [3, 8],
       [4, 1], [4, 3], [4, 5], [4, 7], [4, 9],
-      [5, 0], [5, 2], [5, 4], [5, 6], [5, 8],
+      [5, 0], [5, 2],         [5, 6], [5, 8],
       [6, 1], [6, 3], [6, 5], [6, 7], [6, 9],
       [7, 0], [7, 2], [7, 4], [7, 6], [7, 8],
       [8, 1], [8, 3], [8, 5], [8, 7], [8, 9],
